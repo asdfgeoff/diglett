@@ -19,7 +19,8 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 from IPython.core.display import display
-from .display import h3, display_side_by_side, print_header_with_lines
+import humanfriendly
+from .display import header, display_side_by_side, print_header_with_lines
 
 
 def infer_dtypes(input_df: pd.DataFrame, categorical_threshold: float = 0.01) -> pd.DataFrame:
@@ -55,7 +56,7 @@ def infer_dtypes(input_df: pd.DataFrame, categorical_threshold: float = 0.01) ->
     return output_df
 
 
-def describe_dtypes(input_df: pd.DataFrame, top_n_cats: int = 10) -> None:
+def describe_dtypes(input_df: pd.DataFrame, top_n_cats: int = 10, return_df: bool = False) -> pd.DataFrame:
     """ A more comprehensive overview of your data, inspired by pd.DataFrame.describe()
 
     Splits output by dtype to provide a more relevant summary of each, including number and pct of null values.
@@ -63,12 +64,13 @@ def describe_dtypes(input_df: pd.DataFrame, top_n_cats: int = 10) -> None:
     Args:
         input_df: The dataframe to be desribed.
         top_n_cats: The number of most frequent values to include in summary of categorical columns.
+        return_df: Whether or not to return the input DataFrame, such that function can be used in a .pipe() chain.
 
     """
 
-    mem_gb = input_df.memory_usage(deep=True).sum() / 10 ** 9
+    mem_bytes = input_df.memory_usage(deep=True).sum()
     print(f'Number of rows: {input_df.shape[0]}')
-    print(f'Size in memory: {mem_gb:.2f} GB')
+    print(f'Size in memory: {humanfriendly.format_size(mem_bytes)}')
 
     with pd.option_context('float_format', lambda x: '%.3f' % x, 'display.max_rows', 200):
 
@@ -81,10 +83,10 @@ def describe_dtypes(input_df: pd.DataFrame, top_n_cats: int = 10) -> None:
         ]
 
         for dtype_name, dtype_cls in dtype_map:
-            h3(dtype_name)
+            header(dtype_name, size=3)
 
             try:
-                sub_df = input_df.select_dtypes(include=dtype_cls)
+                sub_df = input_df.copy().select_dtypes(include=dtype_cls)
                 nulls_summary = sub_df.isnull().agg(['sum', 'mean']).T.rename(columns={'sum': 'num_null', 'mean': 'pct_null'})
                 if dtype_name == 'Categoricals':
                     dfs = [sub_df[col].value_counts(dropna=False, normalize=True).head(top_n_cats).pipe(pd.DataFrame) for col in sorted(sub_df.keys())]
@@ -100,12 +102,23 @@ def describe_dtypes(input_df: pd.DataFrame, top_n_cats: int = 10) -> None:
             except ValueError:
                 print(f'No {dtype_name} columns found.')
 
+    if return_df:
+        return input_df
 
-def fillnas(input_df: pd.DataFrame, subset: list = None) -> pd.DataFrame:
+
+def fillnas(input_df: pd.DataFrame, subset: list = None, fill_value=0, verbose: bool = True) -> pd.DataFrame:
     """ Fills nulls in selected columns from a DataFrame then returns input in a DataFrame.pipe() compatible way. """
     output_df = input_df.copy()
+
+    if verbose:
+        print_header_with_lines(f'FILLING NULL VALUES IN COLUMNS: {subset}')
+
     for col in subset:
-        output_df[col] = input_df[col].fillna(0)
+        if verbose:
+            num_nulls = input_df[col].isnull().sum()
+            pct_nulls = input_df[col].isnull().mean()
+            print(f'Pre-transform null values: {num_nulls} ({pct_nulls:.2%} of rows)')
+        output_df[col] = input_df[col].fillna(fill_value)
     return output_df
 
 
@@ -210,6 +223,43 @@ def cast_bools_to_float(df: pd.DataFrame) -> pd.DataFrame:
         output_df[col] = output_df[col].astype(float)
 
     return output_df
+
+
+def attr(srs: pd.Series):
+    """ Returns a record-level result as an aggregation.
+
+    IF there are multiple values of the rec-rdlevel field then it will return '*' instead.
+    Based on Tableau's ATTR aggregation: https://community.tableau.com/docs/DOC-1355
+
+    """
+    if hasattr(srs, 'cat'):
+        srs = srs.cat.as_ordered()
+
+    min_val, max_val = srs.min(), srs.max()
+    is_same = (min_val == max_val)
+
+    return np.where(is_same, min_val, None)
+
+
+def max_one(srs: pd.Series):
+    raise NotImplementedError()
+
+
+def order_categorical(srs: pd.Series, ordered_categories: list) -> pd.Series:
+    """ Order a categorical column based on a manually-defined order of categories.
+
+    After ordering, the property srs.cat.codes can be used directly as an ordinal encoding.
+
+    """
+    assert set(srs.unique()) == set(ordered_categories), 'Manual ordering does not match observed values'
+    output = srs.copy()
+
+    if not hasattr(srs, 'cat'):
+        output = srs.astype('category')
+
+    output = output.cat.set_categories(ordered_categories, ordered=True)
+    assert output.cat.ordered
+    return output
 
 
 if __name__ == '__main__':

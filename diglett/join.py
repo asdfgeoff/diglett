@@ -6,6 +6,7 @@ import pandas as pd
 
 def verbose_merge(left: pd.DataFrame,
                   right: pd.DataFrame,
+                  on=None,
                   left_on=None,
                   right_on=None,
                   left_index=False,
@@ -13,34 +14,26 @@ def verbose_merge(left: pd.DataFrame,
                   *args, **kwargs) -> pd.DataFrame:
     """ Wraps pd.merge function to provide a visual overview of cardinality between datasets.  """
 
-    if left_on:
-        left_vals = left[left_on]
-        left_name = left_on
-    elif left_index:
-        left_vals = left.index
+    if on:
+        left_vals, right_vals = left[on], right[on]
+        left_name, right_name = on, on
+    elif left_on and right_on:
+        left_vals, right_vals = left[left_on], right[right_on]
+        left_name, right_name = left_on, right_on
+    elif left_index and right_index:
+        left_vals, right_vals = left.index, right.index
         try:
             left_name = left_vals.index.name
+            right_name = right_vals.index.name
         except AttributeError:
-            left_name = 'idx'
+            left_name = right_name = 'idx'
     else:
-        raise ValueError('Function must take parameer left_on or left_index.')
+        raise ValueError('Arguments must include one of: on, left_on AND right_on, left_index AND right_index')
 
     left_nulls = left_vals.isnull()
     if left_nulls.sum() > 0:
         warn(f'Left join key has {left_nulls.sum()} null values ({left_nulls.mean():.0%} of values)')
     left_set = set(left_vals)
-
-    if right_on:
-        right_vals = right[right_on]
-        right_name = right_on
-    elif right_index:
-        right_vals = right.index
-        try:
-            right_name = right_vals.index.name
-        except AttributeError:
-            right_name = 'idx'
-    else:
-        raise ValueError('Function must take parameer right_on or right_index.')
 
     right_nulls = right_vals.isnull()
     if right_nulls.sum() > 0:

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 import seaborn as sns
 from IPython.core.display import display
-from .display import h3, h7
+from .display import header
 
 
 def mpl_boilerplate(shape: Tuple[int, int] = (6, 4),
@@ -18,6 +18,19 @@ def mpl_boilerplate(shape: Tuple[int, int] = (6, 4),
                     legend: bool = True) -> None:
     """ Decorator to perform boilerplate matplotlib formatting.
     Target plot function must accept fig, ax as first args and also return them.
+
+    Example:
+        @mpl_boilerplate(grid=True, legend=False)
+        def my_plot(data, *args, **kwargs):
+
+            try:
+                fig, ax = kwargs['fig'], kwargs['ax']
+            except KeyError:
+                fig, ax = plt.subplots()
+
+            ax.plot(data)
+
+            return fig, ax
 
     Args:
         shape: size of matplotlib figure (width, height)
@@ -35,6 +48,10 @@ def mpl_boilerplate(shape: Tuple[int, int] = (6, 4),
             fig, ax = plt.subplots(figsize=shape, dpi=100)
             fig.set_facecolor('white')
 
+            # Run the primary plot
+            fig, ax = func(*args, **kwargs, fig=fig, ax=ax)
+
+            # Key formatting
             if 'title' in kwargs:
                 if left_title:
                     ax.text(0, 1.08, kwargs['title'], size='large', transform=ax.transAxes)
@@ -51,24 +68,37 @@ def mpl_boilerplate(shape: Tuple[int, int] = (6, 4),
                 ax.set_xlabel(kwargs['xlabel'], labelpad=10)
                 del kwargs['xlabel']
 
-            # Run the primary plot
-            fig, ax = func(*args, **kwargs, fig=fig, ax=ax)
-
             # Misc formatting
-
             if legend:
                 plt.legend()
 
             if not y_axis:
                 ax.get_yaxis().set_visible(False)
+
             if grid:
                 ax.grid(which='major', color='black', linestyle='--', alpha=0.1)
+            else:
+                ax.grid(False)
 
             plt.show()
 
         return wrapper
 
     return real_decorator
+
+
+@mpl_boilerplate(y_axis=False, legend=False, grid=False)
+def clipped_distplot(srs: pd.Series, quantile: float = 0.99, **kwargs):
+    """ Plot a seaborn distplot with maximum values clipped at some quantile. Compatible with @mpl_boilerplate decorator. """
+    try:
+        fig, ax = kwargs['fig'], kwargs['ax']
+    except KeyError:
+        fig, ax = plt.subplots()
+
+    to_viz = srs.clip(upper=srs.quantile(quantile))
+    sns.distplot(to_viz, kde=False)
+
+    return fig, ax
 
 
 def sorted_external_legend(func):
@@ -107,10 +137,10 @@ def display_insight(df: pd.DataFrame,
 
     """
     if title:
-        h3(title)
+        header(title, size=3)
     if subtitle:
         split = '<br>'.join(wrap(subtitle, width=60))
-        h7(split)
+        header(split, size=7)
 
     if fmt:
         display(df.style.format(fmt))

@@ -25,15 +25,10 @@ def print_header_with_lines(text: str, line_char: str = '-') -> None:
     print('', line_char*length, text, line_char*length, sep='\n')
 
 
-def display_header(size: int, text: str) -> None:
+def header(text: str, size: int = 4) -> None:
     """ Display an HTML header representation of a given string in a given size """
     display(HTML(f'<h{size}>{text}</h{size}>'))
 
-
-h2 = partial(display_header, 2)
-h3 = partial(display_header, 3)
-h4 = partial(display_header, 4)
-h7 = partial(display_header, 7)
 
 if __name__ == '__main__':
     pass
