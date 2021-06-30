@@ -1,6 +1,8 @@
 # Diglett
 
-Generic tools for exploratory data analysis and data wrangling.
+What it does
+Diglett is a collection of my most frequently used and reusable functions for data analysis, data wrangling, and machine learning. I have largely packaged them together for my own benefit, but I hope you will find something useful in here for yourself.
+
 
 ![Image of Diglett pokemon](diglett.png)
 
