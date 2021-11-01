@@ -1,10 +1,14 @@
+"""Tests related to group sub-module."""
+
 from textwrap import dedent
+
 import pandas as pd
-from diglett.wrangle import group_other
+
+from diglett.group import group_other
 
 
 def test_group_other_with_df_1d():
-
+    """Test group_other() on one-dimensional input."""
     input_df = pd.DataFrame({'dim_A': list('ABCDEFG'), 'num_': range(1, 8)})
 
     expected = """
@@ -24,8 +28,10 @@ def test_group_other_with_df_1d():
 
 
 def test_group_other_with_df_2d():
-
-    input_df = pd.DataFrame({'dim_A': list('ABCABCABC'), 'dim_B': list('XXXYYYZZZ'), 'num_': range(1, 10)})
+    """Test group_other() on two-dimensional input."""
+    input_df = pd.DataFrame(
+        {'dim_A': list('ABCABCABC'), 'dim_B': list('XXXYYYZZZ'), 'num_': range(1, 10)}
+    )
 
     expected = """
       dim_A dim_B  num_
@@ -43,17 +49,26 @@ def test_group_other_with_df_2d():
 
 
 def test_group_other_with_srs():
+    """Test group_other() with a pandas Series as input."""
 
-    input_df = pd.DataFrame({'dim_A': list('ABCDEFG'), 'num_': range(1, 8)}).set_index('dim_A')['num_']
+    # fmt: off
+    input_df = (
+      pd.DataFrame({
+        'dim_A': list('ABCDEFGHI'),
+        'num_': range(1, 10)
+        })
+      .set_index('dim_A')['num_']
+    )
+    # fmt: on
 
     expected = """
     dim_A
-    G    7
-    F    6
-    E    5
-    D    4
-    C    3
-    …    3
+    …    10
+    I     9
+    H     8
+    G     7
+    F     6
+    E     5
     """
 
     actual = group_other(input_df, n=5).to_string().strip('\n')

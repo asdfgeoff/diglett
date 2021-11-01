@@ -1,0 +1,18 @@
+[flake8]
+select = ANN,B,D,DAR,C,E,F,I,W
+max-line-length = 120
+max-complexity = 100
+import-order-style = google
+docstring-convention = google
+application-import-names = diglett,tests
+ignore = 
+    E712,      # E712 comparison to True should be 'if cond is True:' or 'if cond:'
+    E741,      # ambiguous variable name 'l'
+    DAR101,    # Missing parameter(s) in Docstring
+    DAR201,    # Missing "Returns" in Docstring
+    DAR401,    # DAR401 Missing exception(s) in Raises section
+    D202,      # No blank lines allowed after function docstring
+    D210       # No whitespaces allowed surrounding docstring text
+per-file-ignores =
+    tests/*:S101,ANN
+    noxfile.py:ANN

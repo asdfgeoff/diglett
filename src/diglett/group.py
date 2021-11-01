@@ -1,23 +1,40 @@
+"""Tools related to df.groupby()."""
+
 from functools import singledispatch
 from typing import Union
+
 import pandas as pd
 
 
 @singledispatch
-def group_other(data: Union[pd.Series, pd.DataFrame], n: int = 10, other_val: str = '…', sort_by: str = None):
+def group_other(
+    data: Union[pd.Series, pd.DataFrame],
+    n: int = 10,
+    other_val: str = '…',
+    sort_by: str = None,
+):
     """Group the "long-tail" dimensions (beyond top N) of a DataFrame or Series together.
 
     Assumptions:
-    - Index does not matter
-    - All non-numeric columns are dimensions
-    - If multiple numeric columns, sort by right-most before grouping
+
+    * Index does not matter
+    * All non-numeric columns are dimensions
+    * If multiple numeric columns, sort by right-most before grouping
+
+    Args:
+        data: A series or dataframe as input.
+        n: Values beyond this point get grouped as "other".
+        other_val: The string with which to represent "other" values.
+        sort_by: The column by which to sort the dataframe, before grouping.
 
     """
     raise NotImplementedError
 
 
 @group_other.register
-def _group_other_df(df: pd.DataFrame, n: int = 10, other_val: str = '…', sort_by: str = None) -> pd.DataFrame:
+def _group_other_df(
+    df: pd.DataFrame, n: int = 10, other_val: str = '…', sort_by: str = None
+) -> pd.DataFrame:
     """Implement group_other() for DataFrame input."""
 
     # infer which columns to group by and aggregate
@@ -35,7 +52,7 @@ def _group_other_df(df: pd.DataFrame, n: int = 10, other_val: str = '…', sort_
 
 
 @group_other.register
-def _group_other_srs(srs: pd.Series, n=10, other_val: str = '…') -> pd.Series:
+def _group_other_srs(srs: pd.Series, n: int = 10, other_val: str = '…') -> pd.Series:
     """Implement group_other() for a Series input."""
 
     assert srs.dtype.kind == 'i', 'Expecting an int'
@@ -49,4 +66,4 @@ def _group_other_srs(srs: pd.Series, n=10, other_val: str = '…') -> pd.Series:
 
 
 if __name__ == '__main__':
-    pass
+    pass  # pragma: no cover
