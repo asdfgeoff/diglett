@@ -8,6 +8,7 @@ from nox.sessions import Session
 
 package = 'diglett'
 locations = "src", "tests", "noxfile.py"
+nox.options.sessions = "lint", "mypy", "tests"
 
 
 def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
