@@ -11,10 +11,12 @@ print(sys.executable)
 project = "diglett"
 author = "Geoff Ruddock"
 copyright = f"2021, {author}"
-html_theme = 'sphinx_book_theme'
+html_theme = "sphinx_book_theme"
+html_theme_options = {"single_page": True}
 
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
+    "sphinx_book_theme",
 ]

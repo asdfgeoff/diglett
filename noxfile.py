@@ -105,7 +105,7 @@ def docs(session: Session) -> None:
 
     session.run("poetry", "install", "--no-dev", external=True)
     install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints", "sphinx-book-theme")
-    session.run("sphinx-build", "docs", "docs/_build")
+    session.run("sphinx-build", "-b", "singlehtml", "docs", "docs/_build")
 
 
 @nox.session(python="3.8")
