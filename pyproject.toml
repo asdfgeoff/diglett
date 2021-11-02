@@ -6,7 +6,7 @@ authors = ["Geoff Ruddock <geoff@ruddock.ca>"]
 documentation = "https://diglett.readthedocs.io"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.8.6"
 pandas = "^1.0.4"
 ipython = "^7.26.0"
 matplotlib = "^3.4.2"

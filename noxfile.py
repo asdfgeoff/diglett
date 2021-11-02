@@ -66,7 +66,7 @@ def quick_tests(session: Session) -> None:
     session.run("poetry", "run", "pytest", "--cov", external=True)
 
 
-@nox.session(python=["3.10", "3.9", "3.8", "3.7"])
+@nox.session(python=["3.10", "3.9", "3.8"])
 def tests(session: Session) -> None:
     """Run the test suite for multiple versions of Python."""
 
