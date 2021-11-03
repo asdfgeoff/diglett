@@ -124,7 +124,7 @@ def tabulate(
             pivot
             .pipe(reindex_by_sum, axis=0, margin_col='All')
             .pipe(reindex_by_sum, axis=1, margin_col='All')
-        ) 
+        )
     # fmt on
 
     if normalize:

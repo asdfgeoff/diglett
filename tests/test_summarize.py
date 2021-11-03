@@ -1,9 +1,11 @@
+""" Test the summarize() function. """
 import seaborn as sns
 
 from diglett.eda import summarize
 
 
 def test_summarize():
+    """ Test the summarize() function. """
     df = sns.load_dataset('penguins')
     output = summarize(df, return_output=True)
     print(output)

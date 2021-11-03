@@ -1,3 +1,5 @@
+"""Functions which produce some sort of output from a DataFrame."""
+
 from typing import List, Optional, Union
 
 from IPython.core.display import display, display_html
@@ -62,7 +64,7 @@ def format_helper(
         return None
 
 
-def display_side_by_side(*args) -> None:  # pragma: no cover
+def display_side_by_side(*args: pd.DataFrame) -> None:  # pragma: no cover
     """Output an array of pandas DataFrames side-by-side in a Jupyter notebook to conserve vertical space."""
     html_str = ''
     for df in args:

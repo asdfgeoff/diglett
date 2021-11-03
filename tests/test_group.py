@@ -53,11 +53,11 @@ def test_group_other_with_srs():
 
     # fmt: off
     input_df = (
-      pd.DataFrame({
-        'dim_A': list('ABCDEFGHI'),
-        'num_': range(1, 10)
+        pd.DataFrame({
+            'dim_A': list('ABCDEFGHI'),
+            'num_': range(1, 10)
         })
-      .set_index('dim_A')['num_']
+        .set_index('dim_A')['num_']
     )
     # fmt: on
 

@@ -8,7 +8,7 @@ from diglett.output import format_helper
 
 @pytest.fixture
 def input_df() -> pd.DataFrame:
-    """DataFrame to use as input for tests."""
+    """Create a DataFrame to use as input for tests."""
     return pd.DataFrame({'num_': [1, 2, 3, 4], 'pct_': [0.9, 0.9, 0.8, 0.1]})
 
 
@@ -33,12 +33,6 @@ def test_format_helper_explicit_cols(input_df: pd.DataFrame):
     assert styler.data.sum().sum() == 12.7
     if pd.__version__ >= '1.3.0':
         assert styler.hide_index_ == False
-
-
-@pytest.mark.xfail(raises=ValueError)
-def test_format_helper_invalid_input():
-    """Expect failure when input is not a series or dataframe."""
-    _ = format_helper('Meow')  # TODO: Check back after typeguard v3 to see if can ignore somehow
 
 
 def test_format_helper_styler_input(input_df: pd.DataFrame):

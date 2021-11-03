@@ -1,3 +1,5 @@
+""" Tests for the tabulate() function. """
+
 import pandas as pd
 import pytest
 
@@ -6,17 +8,14 @@ from diglett.eda import tabulate
 
 @pytest.fixture
 def input_df():
+    """ Create an input DataFrame with cols: (dim_A, dim_B, num_). """
     return pd.DataFrame(
-        {
-            'dim_A': list('ABCABCABC'),
-            'dim_B': list('XXXYYYZZZ'),
-            'num_': range(1, 10),
-        }
+        {'dim_A': list('ABCABCABC'), 'dim_B': list('XXXYYYZZZ'), 'num_': range(1, 10)}
     )
 
 
 def test_tabulate_default(input_df):
-    print(help(tabulate))
+    """ Basic test case. """
     output = tabulate(input_df, return_output=True)
     print(output)
     assert output.sum().sum() == 180
@@ -25,7 +24,7 @@ def test_tabulate_default(input_df):
 
 
 def test_tabulate_normalized(input_df):
-    print(help(tabulate))
+    """ Test with normalize=True argument. """
     output = tabulate(input_df, normalize=True, return_output=True)
     print(output)
     assert output.sum().sum() == 4.0
@@ -34,7 +33,7 @@ def test_tabulate_normalized(input_df):
 
 
 def test_tabulate_unsorted(input_df):
-    print(help(tabulate))
+    """ Test with sorted=False argument. """
     output = tabulate(input_df, sorted=False, return_output=True)
     print(output)
     assert output.sum().sum() == 180

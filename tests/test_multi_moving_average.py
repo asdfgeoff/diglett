@@ -1,3 +1,5 @@
+""" Tests related to multi_moving_average() function. """
+
 import pandas as pd
 import pytest
 
@@ -6,6 +8,7 @@ from diglett.transform import multi_moving_average
 
 @pytest.fixture
 def input_df():
+    """ Create an input DataFrame. """
     return pd.DataFrame(
         {
             'ds': pd.date_range(start='2021-01-01', periods=4).repeat(3),
@@ -17,6 +20,7 @@ def input_df():
 
 
 def test_mma_correct_order(input_df):
+    """ Test with input index levels in correct order. """
     output_df = multi_moving_average(input_df)
 
     assert output_df.sum().sum() == 168
@@ -25,4 +29,5 @@ def test_mma_correct_order(input_df):
 
 @pytest.mark.xfail(raises=AssertionError)
 def test_mma_incorrect_order(input_df):
+    """ Test with input index levels in incorrect order. """
     _ = multi_moving_average(input_df.swaplevel())
