@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "diglett"
 version = "0.2.0"
-description = "Tools for data wrangling"
+description = "Tools for data wrangling."
 readme = "README.md"
 authors = ["Geoff Ruddock <geoff@ruddock.ca>"]
 documentation = "https://diglett.readthedocs.io"
