@@ -12,20 +12,12 @@ Diglett is a collection of my most frequently used and reusable functions for da
 
 ## Installing
 
-Clone this repo, then navigate to the directory in Terminal and run this command
+To install the most recently published version from PyPI:
+```
+pip install diglett
+```
 
+To install a (possibly more recent, but less polished) version: clone this repo and run:
 ```
 pip install -e .
 ```
-
-## Features and usage
-
-```py
-from diglett import infer_dtypes, describe_dtypes
-
-df.pipe(infer_dtypes, categorical_threshold=0.10).pipe(describe_dtypes)
-```
-
-## Running the tests
-
-TODO
