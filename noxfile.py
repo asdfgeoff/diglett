@@ -1,10 +1,23 @@
 """Nox sessions."""
 
+import sys
 import tempfile
+from textwrap import dedent
 from typing import Any
 
 import nox
-from nox.sessions import Session
+
+# from nox.sessions import Session
+try:
+    from nox_poetry import Session
+    from nox_poetry import session
+except ImportError:
+    message = f"""\
+    Nox failed to import the 'nox-poetry' package.
+    Please install it using the following command:
+    {sys.executable} -m pip install nox-poetry"""
+    raise SystemExit(dedent(message)) from None
+
 
 package = 'diglett'
 locations = "src", "tests", "noxfile.py"
@@ -58,7 +71,7 @@ def lint(session: Session) -> None:
     session.run("flake8", *args)
 
 
-@nox.session(python="3.7")
+@nox.session(python="3.8")
 def quick_tests(session: Session) -> None:
     """Run the test suite for a single version of Python."""
 
@@ -100,6 +113,27 @@ def coverage(session: Session) -> None:
 
 
 @nox.session(python="3.8")
+def mypy(session: Session) -> None:
+    """Type-check using mypy."""
+
+    args = session.posargs or ["src", "tests", "docs/conf.py"]
+    session.install(".")
+    session.install("mypy", "pytest")
+    session.run("mypy", *args)
+    if not session.posargs:
+        session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
+
+
+@nox.session(python="3.8")
+def typeguard(session: Session) -> None:
+    """Runtime type checking using Typeguard."""
+
+    session.install(".")
+    session.install("pytest", "typeguard", "pygments")
+    session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
+
+
+@nox.session(python="3.8")
 def docs(session: Session) -> None:
     """Build the documentation."""
 
@@ -107,29 +141,3 @@ def docs(session: Session) -> None:
     install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints", "sphinx-book-theme")
     session.run("sphinx-build", "-b", "singlehtml", "docs", "docs/_build")
 
-
-@nox.session(python="3.8")
-def mypy(session: Session) -> None:
-    """Type-check using mypy."""
-
-    args = session.posargs or locations
-    install_with_constraints(session, "mypy")
-    session.run("mypy", *args)
-
-
-@nox.session(python="3.8")
-def typeguard(session: Session) -> None:
-    """Runtime type checking using Typeguard."""
-
-    args = session.posargs or ["-m", "not e2e"]
-    session.run("poetry", "install", "--no-dev", external=True)
-    install_with_constraints(session, "pytest", "pytest-mock", "typeguard")
-    session.run("poetry", "run", "pytest", f"--typeguard-packages={package}", *args, external=True)
-
-
-@nox.session(python="3.8")
-def coverage(session: Session) -> None:
-    """Upload coverage data."""
-    install_with_constraints(session, "coverage[toml]", "codecov")
-    session.run("coverage", "xml", "--fail-under=0")
-    session.run("codecov", *session.posargs)

@@ -12,7 +12,8 @@ ignore =
     DAR201,    # Missing "Returns" in Docstring
     DAR401,    # DAR401 Missing exception(s) in Raises section
     D202,      # No blank lines allowed after function docstring
-    D210       # No whitespaces allowed surrounding docstring text
+    D210,       # No whitespaces allowed surrounding docstring text
+    W503        # line break before binary operator
 per-file-ignores =
     tests/*:S101,ANN
     noxfile.py:ANN
